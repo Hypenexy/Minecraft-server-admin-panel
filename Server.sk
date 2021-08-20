@@ -1,0 +1,810 @@
+#script options: If you actively develop this uncomment this for magic!
+#	$ developer mode
+
+on Skript load:
+	set {starttime} to now
+
+on inventory close:
+	if {gui.opened.%player%} is set:
+		delete {gui.opened.%player%}
+on disconnect:
+	if {gui.opened.%player%} is set:
+		delete {gui.opened.%player%}
+
+command /admin [<number>]:
+	permission: admin
+	aliases: /panel
+	trigger:
+		open chest with 6 rows named "&4Admin Panel" to player
+		if arg is 2:
+			open chest with 6 rows named "&4Admin Panel &0| %number of all offline players% Players" to player
+		if arg is 5:
+			open chest with 6 rows named "&4Admin Panel &0| %difficulty of world% " to player
+			if {hardcore} is true:
+				open chest with 6 rows named "&4Admin Panel &0| hardcore " to player
+		if arg is 6:
+			if {settings.whitelist.on} is set:
+				open chest with 6 rows named "&4Admin Panel &0| &2Whitelist " to player
+			else:
+				open chest with 6 rows named "&4Admin Panel &0| &8Whitelist " to player
+		play sound "ENTITY_ZOMBIE_INFECT" with volume 0.3 and pitch 0.65
+		wait 2 ticks
+		if arg is not set:
+			set {gui.opened.%player%} to 1
+			set slot 10 of current inventory of player to player head named "&aPlayers" with lore "", "&7 Manage and view all players", "&7 on your server.", "" and "&eClick to open!"
+			set slot 12 of current inventory of player to grass named "&aWorld settings" with lore "", "&7 Change options for the world.", "", "" and "&eClick to open!"
+			set slot 14 of current inventory of player to sunflower named "&aTime" with lore "", "&7 Change time for the world.", "", "" and "&eClick to open!"
+			set slot 16 of current inventory of player to iron helmet with nbt "{HideFlags:63}" named "&aDifficulty" with lore "", "&7 Change the difficulty for", "&7 the server.", "", "&8 Currently: &fNormal","" and "&eClick to open!"
+			if difficulty of "world" is easy:
+				set slot 16 of current inventory of player to leather helmet with nbt "{HideFlags:63}" named "&aDifficulty" with lore "", "&7 Change the difficulty for", "&7 the server.", "", "&8 Currently: &aEasy","" and "&eClick to open!"
+			if difficulty of "world" is hard:
+				set slot 16 of current inventory of player to diamond helmet with nbt "{HideFlags:63}" named "&aDifficulty" with lore "", "&7 Change the difficulty for", "&7 the server.", "", "&8 Currently: &4Hard","" and "&eClick to open!"
+			if difficulty of "world" is peaceful:
+				set slot 16 of current inventory of player to oak sapling named "&aDifficulty" with lore "", "&7 Change the difficulty for", "&7 the server.", "", "&8 Currently: &2Peaceful","" and "&eClick to open!"
+			if {hardcore} is true:
+				set slot 16 of current inventory of player to bedrock named "&aDifficulty" with lore "", "&7 Change the difficulty for", "&7 the server.", "", "&8 Currently: &cHARDCORE","" and "&eClick to open!"
+			if {settings.whitelist.on} is set:
+				set slot 29 of current inventory of player to quartz named "&aWhitelist" with lore "", "&7 Change who has access to", "&7 join the server.","", "&8 Currently: &aEnabled","" and "&eClick to open!"
+			else:
+				set slot 29 of current inventory of player to quartz named "&aWhitelist" with lore "", "&7 Change who has access to", "&7 join the server.","", "&8 Currently: &cDisabled ","" and "&eClick to open!"
+			set slot 31 of current inventory of player to command block named "&aServer Options" with lore "", "&7 Change overall server settings.", "","" and "&eClick to open!"
+			set slot 33 of current inventory of player to string named "&aGame rules" with lore "", "&7 Change overall game rules.", "","" and "&eClick to open!"
+			add number of the loaded chunks of "world" to {_chunks}
+			add number of the loaded chunks of "world_nether" to {_chunks}
+			add number of the loaded chunks of "world_the_end" to {_chunks}
+			set slot 49 of current inventory of player to paper named "&aServer Stats" with lore "", "&6 TPS from last:", "&f  1m - %tps from last minute%", "&f  5m - %tps from last 5m%", "&f  15m - %tps from last 15m% ", "&8  20 is maximum.","","&6 Chunks loaded: &f%{_chunks}%", "", "&6 Online Players: &f%number of all players%", "&6 Offline Players: &f%number of all offline players - number of all players%", "", "&6 Uptime: &f%difference between {starttime} and now%", "&6 Started: &f%{starttime}%", ""
+			while {gui.opened.%player%} is 1:
+				set {_chunks} to 0
+				add number of the loaded chunks of "world" to {_chunks}
+				add number of the loaded chunks of "world_nether" to {_chunks}
+				add number of the loaded chunks of "world_the_end" to {_chunks}
+				set slot 49 of current inventory of player to paper named "&aServer Stats" with lore "", "&6 TPS from last:", "&f  1m - %tps from last minute%", "&f  5m - %tps from last 5m%", "&f  15m - %tps from last 15m% ", "&8  20 is maximum.","","&6 Chunks loaded: &f%{_chunks}%", "", "&6 Online Players: &f%number of all players%", "&6 Offline Players: &f%number of all offline players - number of all players%", "", "&6 Uptime: &f%difference between {starttime} and now%", "&6 Started: &f%{starttime}%", ""
+				wait 10 seconds
+			
+		if arg is set:
+			set {gui.opened.%player%} to arg
+			set {_item} to player head named "&cBack to &4Admin Panel" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWRmNWMyZjg5M2JkM2Y4OWNhNDA3MDNkZWQzZTQyZGQwZmJkYmE2ZjY3NjhjODc4OWFmZGZmMWZhNzhiZjYifX19""}]}}}"
+			set slot 45 of current inventory of player to {_item}
+
+		if arg is 2:
+			set {_num} to -1
+			set {_onlinenumber} to number of all players
+			format slot {_onlinenumber} of player with red stained glass pane named "&a<Online&7-&cOffline>" to be unstealable
+			loop all offline players:
+				set {_player} to "%loop-offlineplayer%" parsed as an offline player
+				#wait a tick
+				if {_num} is larger than 35:
+					broadcast "&cWarning /list is full! Ask Hypenexy to upgrade."
+					stop
+				#if "%loop-offlineplayer%" doesn't contain "@":
+				set {_uuid} to loop-offlineplayer's uuid
+				if loop-offlineplayer is online:
+					add 1 to {_num}
+					set {_item} to skull of ("%loop-offlineplayer%" parsed as offline player) named "&f%{_player}% &a•"
+					set line 1 of lore of {_item} to "&aCurrently online"
+					set line 2 of lore of {_item} to "&7"
+					set line 3 of lore of {_item} to "&f %loop-offlineplayer's health*2% &c❤ Health"
+					set line 4 of lore of {_item} to "&f %loop-offlineplayer's level% &9🔥 Level"
+					set line 6 of lore of {_item} to "&eClick to manage"
+					format slot {_num} of player with {_item} to run "sudo %player% /manage %loop-offlineplayer%"
+
+				if loop-offlineplayer is offline:
+					set {_time} to {lastonline.%loop-offlineplayer's uuid%}
+					set {_difference} to "%difference between {_time} and now% ago"
+					if {_time} is not set:
+						set {_difference} to "&8Data Unavaliable"
+					add 1 to {_onlinenumber}
+					set {_item} to skull of ("%loop-offlineplayer%" parsed as offline player) named "&7%loop-offlineplayer% &c•"
+					set line 1 of lore of {_item} to "&7Last seen: %{_difference}%"
+					set line 3 of lore of {_item} to "&eClick to manage"
+					format slot {_onlinenumber} of player with {_item} to run "sudo %player% /manage %loop-offlineplayer%"
+					delete {_time}
+					delete {_difference}
+					delete {_item}
+
+		if arg is 3:
+			set slot 10 of current inventory of player to grass named "&2Overworld" with lore "&7%number of players in world "world"% players.", "", "&f %players in world "world" ? ""%", ""
+			set slot 11 of current inventory of player to netherrack named "&cThe Nether" with lore "&7%number of players in world "world_nether"% players.", "", "&f %players in world "world_nether" ? ""%", ""
+			set slot 12 of current inventory of player to end stone named "&3The End" with lore "&7%number of players in world "world_the_end"% players.", "", "&f %players in world "world_the_end" ? ""%", ""
+			set slot 15 of current inventory of player to obsidian named "&aNether portals" with lore "", "&7 This options toggles nether portals.", "", "&a Enabled &8- Disabled", "", "&eClick to toggle"
+			if {nether.access} is set:
+				set slot 15 of current inventory of player to obsidian named "&aNether portals" with lore "", "&7 This options toggles nether portals.", "", "&8 Enabled -&c Disabled", "", "&eClick to toggle"
+			set slot 16 of current inventory of player to end portal frame named "&aEnd portals" with lore "", "&7 This options toggles end portals.", "", "&a Enabled &8- Disabled", "", "&eClick to toggle"
+			if {end.access} is set:
+				set slot 16 of current inventory of player to end portal frame named "&aEnd portals" with lore "", "&7 This options toggles end portals.", "", "&8 Enabled -&c Disabled", "", "&eClick to toggle"
+		if arg is 4:
+			set {_item} to player head named "&6Morning" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjg1MTlkNDUwNWY0Y2VlNGMwOWI2OGRiMzUwYmIxMTNlNzUzZDdhMGVmNjFkN2U0YzQwNDhiZWU4NGExNTdhNSJ9fX0=""}]}}}" with lore "&85:30", "", "&eClick to change the time"
+			set slot 10 of current inventory of player to {_item}
+			set {_item} to player head named "&eNoon" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWMzNzgzMmM0MTM1MjU1NTU1M2Q4NmFhYWUxMzQxOTMzMWUzYWRlOTk3YmNlMGI4MTEzN2Q1MjA0ZTRjZGU3ZSJ9fX0""}]}}}" with lore "&812:00", "", "&eClick to change the time"
+			set slot 12 of current inventory of player to {_item}
+			set {_item} to player head named "&9Evening" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2JjYTM2ZjFhYThkYzIyYTNhY2FhYzVmZTVlOTlmZTNiMmE4Mjc0NjI5MTA3MGY5OTg0Yjc1MzNkOWMxZjRlZSJ9fX0""}]}}}" with lore "&818:30", "", "&eClick to change the time"
+			set slot 14 of current inventory of player to {_item}
+			set {_item} to player head named "&5Midnight" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWQzZDI1MGUyNWJiY2EzYTYyYmU1YjNlZjAyY2ZjYWI2ZGNkYzQyNDg4NGM5YTdkNWNjOTVjOWQwIn19fQ""}]}}}" with lore "&800:00", "", "&eClick to change the time"
+			set slot 16 of current inventory of player to {_item}
+			
+			
+			set {_item} to player head named "&bClear" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzUzYzg5YTJhZGM0ZWU1YmExZjA1ZTVkNjRlOWI0YmI2YjMyMzJjNzIwMjhlMGNiZTM1ZTFiNzNkMGM1N2RjMSJ9fX0==""}]}}}" with lore "", "&eClick to change the weather"
+			set slot 29 of current inventory of player to {_item}
+			set {_item} to player head named "&9Rainy" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTQ2ZmVlN2JiYjJhODI2YzY4ZjZhMzZjY2JkNzY5MzJjZGNkOWU2ZjIzNDMxYzQ3N2E2ZDMwZGU0ZjNhNiJ9fX0=""}]}}}" with lore "", "&eClick to change the weather"
+			set slot 31 of current inventory of player to {_item}
+			set {_item} to player head named "&5Thundering" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2Q5Yzc4NTE2NzliNTNkYjc5YzI5Zjk1MTIxMTUwNjNmNzY1NTE4Y2I3MDJiODc2YWZmZWQ2Mzk0M2JkYTgyOSJ9fX0=""}]}}}" with lore "", "&eClick to change the weather"
+			set slot 33 of current inventory of player to {_item}
+			
+			if {cheats.lock} is set:
+				set slot 22 of current inventory of player to barrier named "&cCheats are disabled!"
+			
+			set slot 49 of current inventory of player to clock named "&a%time%"
+			while {gui.opened.%player%} is 4:
+				set slot 49 of current inventory of player to clock named "&a%time%"
+				wait 0.83 seconds
+
+		if arg is 5:
+			set slot 11 of current inventory of player to leather helmet with nbt "{HideFlags:63}" named "&aEasy" with lore "&eClick to select"
+			set slot 13 of current inventory of player to iron helmet with nbt "{HideFlags:63}" named "&fNormal" with lore "&eClick to select"
+			set slot 15 of current inventory of player to diamond helmet with nbt "{HideFlags:63}" named "&4Hard" with lore "&eClick to select"
+			set slot 30 of current inventory of player to oak sapling named "&2Peaceful" with lore "&eClick to select"
+			set slot 32 of current inventory of player to bedrock named "&cHARDCORE" with lore "&eClick to select"
+			if difficulty of "world" is easy:
+				set slot 11 of current inventory of player to leather helmet of efficiency 3 with nbt "{HideFlags:63}" named "&aEasy" with lore "&6Already selected"
+			if difficulty of "world" is normal:
+				set slot 13 of current inventory of player to iron helmet of efficiency 3 with nbt "{HideFlags:63}" named "&fNormal" with lore "&6Already selected"
+			if difficulty of "world" is hard:
+				if {hardcore} isn't set:
+					set slot 15 of current inventory of player to diamond helmet of efficiency 3 with nbt "{HideFlags:63}" named "&4Hard" with lore "&6Already selected"
+			if difficulty of "world" is peaceful:
+				set slot 30 of current inventory of player to oak sapling of efficiency 3 with nbt "{HideFlags:63}" named "&2Peaceful" with lore "&6Already selected"
+			if {hardcore} is true:
+				set slot 32 of current inventory of player to bedrock of efficiency 3 with nbt "{HideFlags:63}" named "&cHARDCORE" with lore "&6Already selected", "", "&cWhen you disable hardcore", "&call deaths are erased!"
+		
+		if arg is 6:
+			set {_item} to player head named "&aWhitelist a player" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19""}]}}}"
+			format slot 46 of player with {_item} to run [make player execute command "whitelistgui add"]
+			if {settings.whitelist.on} is set:
+				format slot 47 of player with lime dye named "&aWhitelist" with lore "", "&7 With whitelist enabled only players", "&7 you add will be able to join.",""," &aEnabled &8- Disabled", "", "&eClick to toggle" to run [make player execute command "whitelistgui off"]
+				format slot 52 of player with redstone torch named "&cKick unwhitelisted players" to run [make player execute command "whitelistgui kick"]
+			else:
+				format slot 47 of player with gray dye named "&aWhitelist" with lore "", "&7 With whitelist enabled only players", "&7 you add will be able to join.",""," &8Enabled -&c Disabled", "", "&eClick to toggle" to run [make player execute command "whitelistgui on"]
+				format slot 52 of player with lever named "&cKick unwhitelisted players" with lore "", "&cWarning! Whitelist is not enabled so", "&cthey are able to rejoin." to run [make player execute command "whitelistgui kick"]
+			if {settings.whitelist.kickmessage} is set:
+				format slot 53 of player with oak sign named "&aChange kick message" with lore "", "&7To reset the message type", "&6/whitelistoptions resetmessage" to run [make player execute command "whitelistgui message"]
+			else:
+				format slot 53 of player with oak sign named "&aChange kick message" to run [make player execute command "whitelistgui message"]
+			format slot 51 of player with skeleton skull named "&aRecently unwhitelisted players" with lore "", "&eClick to view" to run [make player execute command "whitelistgui recently"]
+
+			if {settings.whitelist.silent} is set:
+				format slot 48 of player with gray dye named "&6Announcements" with lore "", "&7 If turned on it will send a message in chat", "&7 to everyone when you change options.", "", " &8Enabled -&c Disabled", "", "&eClick to toggle" to run [make player execute command "whitelistgui silent"]
+			else:
+				format slot 48 of player with lime dye named "&6Announcements" with lore "", "&7 If turned on it will send a message in chat", "&7 to everyone when you change options.", "", " &aEnabled &8- Disabled", "", "&eClick to toggle" to run [make player execute command "whitelistgui silent"]
+
+			set {_num} to -1
+			loop {whitelist::*}:
+				add 1 to {_num}
+				if loop-value is online:
+					set {_item} to skull of ("%loop-value%" parsed as offline player) named "&f%loop-value% &a•"
+					set line 1 of lore of {_item} to "&aCurrently online"
+				else:
+					set {_item} to skull of ("%loop-value%" parsed as offline player) named "&7%loop-value% &c•"
+					set line 1 of lore of {_item} to "&cCurrently offline"
+				set line 3 of lore of {_item} to "&eClick to unwhitelist"
+				format slot {_num} of player with {_item} to run "sudo %player% /whitelistgui remove %loop-value%"
+
+		if arg is 7:
+			format slot 10 of player with tripwire hook named "&6Cheats" with lore "", "&7 If you want completely cheat free experience", "&7 you can set a password to lock the cheats.", "", "&a Unlocked","","&eClick for command" to run "sudo %player% /lock help"
+
+on inventory click:
+	if {gui.opened.%player%} is set:
+		cancel event
+		if {gui.opened.%player%} is 1:
+			if clicked slot is 10:
+				make player execute command "admin 2"
+			if clicked slot is 12:
+				make player execute command "admin 3"
+			if clicked slot is 14:
+				make player execute command "admin 4"
+			if clicked slot is 16:
+				make player execute command "admin 5"
+			if clicked slot is 29:
+				make player execute command "admin 6"
+			if clicked slot is 31:
+				make player execute command "admin 7"
+			if clicked slot is 33:
+				make player execute command "admin 8"
+
+		if {gui.opened.%player%} is larger than 1:
+			if clicked slot is 45:
+				make player execute command "admin"
+
+		if {gui.opened.%player%} is 3:
+			if clicked slot is 15:
+				if {nether.access} is set:
+					delete {nether.access}
+					broadcast "&6%player%&7 has enabled &cThe Nether&7."
+				else:
+					set {nether.access} to true
+					broadcast "&6%player%&7 has disabled &cThe Nether&7."
+				make player execute command "admin 3"
+			if clicked slot is 16:
+				if {end.access} is set:
+					delete {end.access}
+					broadcast "&6%player%&7 has enabled &3The End&7."
+				else:
+					set {end.access} to true
+					broadcast "&6%player%&7 has disabled &3The End&7."
+				make player execute command "admin 3"
+
+		if {gui.opened.%player%} is 4:
+			{cheats.lock} isn't set
+			if clicked slot is 10:
+				set time in world to 5:30
+				broadcast "&6%player%&7 has changed the time to &6Morning&7."
+			if clicked slot is 12:
+				set time in world to 12:00
+				broadcast "&6%player%&7 has changed the time to &eNoon&7."
+			if clicked slot is 14:
+				set time in world to 18:30
+				broadcast "&6%player%&7 has changed the time to &9Evening&7."
+			if clicked slot is 16:
+				set time in world to 00:00
+				broadcast "&6%player%&7 has changed the time to &5Midnight&7."
+			if clicked slot is 29:
+				set weather in world to clear
+				broadcast "&6%player%&7 has changed the weather to &bClear&7."
+			if clicked slot is 31:
+				set weather in world to rain
+				broadcast "&6%player%&7 has changed the weather to &9Rainy&7."
+			if clicked slot is 33:
+				set weather in world to thunder
+				broadcast "&6%player%&7 has changed the weather to &5Thundering&7."
+				
+		if {gui.opened.%player%} is 5:
+			if clicked slot is 11:
+				if difficulty of "world" isn't easy:
+					if {hardcore} is set:
+						unhardcore()
+						delete {hardcore}
+					set the difficulty of "world" to easy
+					broadcast "&6%player% &7has set the difficulty to &aEasy&7."
+					make player execute command "admin"
+				else:
+					send "&cThe difficulty is already &aEasy&c."
+			if clicked slot is 13:
+				if difficulty of "world" isn't normal:
+					if {hardcore} is set:
+						unhardcore()
+						delete {hardcore}
+					set the difficulty of "world" to normal
+					broadcast "&6%player% &7has set the difficulty to &fNormal&7."
+					make player execute command "admin"
+				else:
+					send "&cThe difficulty is already &fNormal&c."
+			if clicked slot is 15:
+				if {hardcore} isn't set:
+					if difficulty of "world" isn't hard:
+						if {hardcore} is set:
+							unhardcore()
+							delete {hardcore}
+						set the difficulty of "world" to hard
+						broadcast "&6%player% &7has set the difficulty to &4Hard&7."
+						make player execute command "admin"
+					else:
+						send "&cThe difficulty is already &4Hard&c."
+				if {hardcore} is set:
+					unhardcore()
+					delete {hardcore}
+					set the difficulty of "world" to hard
+					broadcast "&6%player% &7has set the difficulty to &4Hard&7."
+					make player execute command "admin"
+			if clicked slot is 30:
+				if difficulty of "world" isn't peaceful:
+					if {hardcore} is set:
+						unhardcore()
+						delete {hardcore}
+					set the difficulty of "world" to peaceful
+					broadcast "&6%player% &7has set the difficulty to &2Peaceful&7."
+					make player execute command "admin"
+				else:
+					send "&cThe difficulty is already &2Peaceful&c."
+			if clicked slot is 32:
+				if {hardcore} isn't true:
+					set the difficulty of "world" to hard
+					set {hardcore} to true
+					broadcast "&6%player% &7has set the difficulty to &cHARDCORE&7."
+					make player execute command "admin"
+				else:
+					send "&cThe difficulty is already HARDCORE&c."
+			
+
+command /manage <offlineplayer> [<text>] [<text>]:
+	permission: admin
+	aliases: /panel
+	trigger:
+		if arg-2 is set:
+			if arg-2 is "punish":
+				if arg-3 is "silent":
+					set {setting.silent} to true
+				if arg-3 is "audible":
+					delete {setting.silent}
+				open chest with 6 rows named "&cPunish &4%arg-1%" to player
+				wait 2 ticks
+				format slot 1 of player with oak sign named "&cMute" with lore "", "&7Muting a player will prevent", "&7them from using the chat.", "" to be unstealable
+				set {_num1} to 10
+				loop 3 times:
+					set {_item} to paper named "&cMute"
+					set line 1 of lore of {_item} to ""
+					set line 4 of lore of {_item} to "&7Muting a player will prevent"
+					set line 5 of lore of {_item} to "&7them from using the chat."
+					set line 7 of lore of {_item} to "&eClick to mute the player"
+					if {_num1} is 10:
+						set {_command} to "10"
+						set {_display} to "&a10 Minutes"
+					if {_num1} is 19:
+						set {_command} to "120"
+						set {_display} to "&e2 Hours"
+					if {_num1} is 28:
+						set {_command} to "p"
+						set {_display} to "&cPermament"
+					set line 2 of lore of {_item} to "&7Duration: %{_display}%"
+					format slot {_num1} of player with {_item} to run "sudo %player% /mute %arg-1% %{_command}%"
+					add 9 to {_num1}
+
+				format slot 3 of player with redstone dust named "&cKick" with lore "", "&7Kicking a player disconnects", "&7them from the server.", "" to be unstealable
+				if arg-1 is online:
+					format slot 12 of player with paper named "&cKick" with lore "", "&7Kicking a player disconnects", "&7them from the server.", "", "&eClick to kick the player" to be unstealable
+				else:
+					format slot 12 of player with paper named "&cKick" with lore "", "&7Kicking a player disconnects", "&7them from the server.", "", "&cPlayer is offline" to be unstealable
+				format slot 5 of player with redstone torch named "&cBan" with lore "", "&7Banning a player will prevent", "&7them from joining the server.", "" to be unstealable
+				set {_num2} to 14
+				loop 3 times:
+					set {_item} to paper named "&cBan"
+					set line 1 of lore of {_item} to ""
+					set line 4 of lore of {_item} to "&7Banning a player will prevent"
+					set line 5 of lore of {_item} to "&7them from joining the server."
+					set line 7 of lore of {_item} to "&eClick to ban the player"
+					if {_num2} is 14:
+						set {_command} to "10"
+						set {_display} to "&a10 Minutes"
+					if {_num2} is 23:
+						set {_command} to "120"
+						set {_display} to "&e2 Hours"
+					if {_num2} is 32:
+						set {_command} to "p"
+						set {_display} to "&cPermament"
+					set line 2 of lore of {_item} to "&7Duration: %{_display}%"
+					format slot {_num2} of player with {_item} to run "sudo %player% /ban %arg-1% %{_command}%"
+					add 9 to {_num2}
+				
+				
+				if {setting.silent} is set:
+					format slot 46 of player with gray dye named "&6Announcements" with lore "", "&7 If turned on it will send a message in chat", "&7 to everyone when you punish someone.", "", "&c Disabled", "", "&eClick to toggle" to run "sudo %player% /manage %arg-1% punish audible"
+				else:
+					format slot 46 of player with lime dye named "&6Announcements" with lore "", "&7 If turned on it will send a message in chat", "&7 to everyone when you punish someone.", "", "&a Enabled", "", "&eClick to toggle" to run "sudo %player% /manage %arg-1% punish silent"
+			set {_item} to player head named "&cBack to &4%arg-1%" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWRmNWMyZjg5M2JkM2Y4OWNhNDA3MDNkZWQzZTQyZGQwZmJkYmE2ZjY3NjhjODc4OWFmZGZmMWZhNzhiZjYifX19""}]}}}"
+			format slot 45 of player with {_item} to run "sudo %player% /manage %arg-1%"
+		arg-2 is not set
+		open chest with 6 rows named "&0%arg-1%" to player
+		wait 2 ticks
+		set {_time} to {lastonline.%arg-1's uuid%}
+		set {_difference} to "%difference between {_time} and now% ago"
+		if arg-1 is online:
+			set {_item} to skull of ("%arg-1%" parsed as offline player) named "&f%arg-1% &a•"
+			set line 1 of lore of {_item} to "&aCurrently online"
+		else:
+			set {_item} to skull of ("%arg-1%" parsed as offline player) named "&7%arg-1% &c•"
+			set line 1 of lore of {_item} to "&7Last seen: %{_difference}%"
+			set line 2 of lore of {_item} to "&7Last online: &8%{_time} ? "Data Unavaliable"%"
+			if {_time} is not set:
+				set line 1 of lore of {_item} to "&7Last seen: &8Data Unavaliable"
+		if arg-1 is offline:
+			set line 4 of lore of {_item} to "&f %{lasthealth.%arg-1's uuid%}*2% &cLast Health"
+			set line 5 of lore of {_item} to "&f %{lastlevel.%arg-1's uuid%} ? "&cNO DATA"% &9Last Level"
+			if {lastworld.%arg-1's uuid%} is set:
+				set {_world} to {lastworld.%arg-1's uuid%}
+				if {_world} is "world":
+					set {_world} to "&2Overworld"
+				if {_world} is "world_nether":
+					set {_world} to "&cThe Nether"
+				if {_world} is "world_the_end":
+					set {_world} to "&3The End"
+			set line 6 of lore of {_item} to "&f %{_world} ? "&cNO DATA"% &bWorld"
+		else:
+			set line 3 of lore of {_item} to "&f %player's health*2% &cHealth"
+			set line 4 of lore of {_item} to "&f %player's level% &9Level"
+			set {_world} to player's world
+			if {_world} is "world":
+				set {_world} to "&2Overworld"
+			if {_world} is "world_nether":
+				set {_world} to "&cThe Nether"
+			if {_world} is "world_the_end":
+				set {_world} to "&3The End"
+			set line 5 of lore of {_item} to "&f %{_world}% &bWorld"
+		format slot 4 of player with {_item} to be unstealable
+
+		if {whitelist.%arg-1's uuid%} is set:
+			format slot 12 of player with quartz named "&aWhitelist" with lore "", "&7Currently: &aWhitelisted","", "&eClick to unwhitelist" to run "sudo %player% /whitelistgui remove2 %arg-1%"
+		else:
+			format slot 12 of player with quartz named "&aWhitelist" with lore "", "&7Currently: &cNot whitelisted","", "&eClick to whitelist" to run "sudo %player% /whitelistgui actuallyadd2 %arg-1%"
+		format slot 33 of player with redstone block named "&cPunish %arg-1%" with lore "", "&eClick to view options" to run "sudo %player% /manage %arg-1% punish"
+		if arg-1 is online:
+			format slot 10 of player with chest named "&aView inventory" with lore "", "&eClick to view" to run "sudo %player% /invsee %arg-1%"
+			format slot 11 of player with ender chest named "&aView ender chest" with lore "", "&eClick to view" to run "sudo %player% /ecsee %arg-1%"
+		else:
+			format slot 10 of player with chest named "&aView inventory" with lore "", "&cPlayer is offline" to be unstealable
+			format slot 11 of player with ender chest named "&aView ender chest" with lore "", "&cPlayer is offline" to be unstealable
+		set {_item} to player head named "&cBack to &4Admin List &f| %number of all offline players% Players" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWRmNWMyZjg5M2JkM2Y4OWNhNDA3MDNkZWQzZTQyZGQwZmJkYmE2ZjY3NjhjODc4OWFmZGZmMWZhNzhiZjYifX19""}]}}}"
+		format slot 45 of player with {_item} to run "sudo %player% /admin 2"
+
+#cringe fix
+command /sudo <player> <text>:
+	permission: dev
+	trigger:
+		force arg-1 to say arg-2
+#cheatlock
+command /lock [<text>]:
+	permission: admin
+	permission message: &7You need to be an &cadmin&7 to execute this command.
+	trigger:
+		send ""
+		if arg is "help":
+			close player's inventory
+			send "&7Command Usage"
+			send "&6 /lock &7- Locks the cheats."
+			send "&6 /lock <password> &7- Locks the cheats with a password."
+		if arg isn't "help":
+			set {_password} to arg-1
+		if arg is not set:
+			set {_password} to "default"
+		if {_password} is set:
+			if {cheats.lock} is not set:
+				set {cheats.lock} to {_password}
+				send "&aCheats have been locked."
+			else:
+				send "&cCheats are already locked."
+				send "&cUnlock them with &6/unlock <password>&c."
+		send ""
+command /unlock [<text>]:
+	permission: admin
+	permission message: &7You need to be an &cadmin&7 to execute this command.
+	trigger:
+		send ""
+		if arg is "help":
+			close player's inventory
+			send "&7Command Usage"
+			send "&6 /unlock &7- Unlocks the cheats."
+			send "&6 /unlock <password> &7- Unlocks the cheats with a password."
+		if arg isn't "help":
+			set {_password} to arg-1
+		if arg is not set:
+			set {_password} to "default"
+		if {_password} is set:
+			if {cheats.lock} is set:
+				if {_password} is {cheats.lock}:
+					delete {cheats.lock}
+					send "&aCheats have been unlocked."
+				else:
+					send "&cWrong password."
+			else:
+				send "&aCheats are not locked."
+		send ""
+#whitelist
+command /whitelistgui [<text>] [<offlineplayer>]:
+	permission: admin
+	permission message: &7You need to be an &cadmin&7 to execute this command.
+	trigger:
+		if arg 1 is "add":
+			close player's inventory
+			send "&6Open chat and type &f&n/whitelist add <name of player>"
+			send "<tooltip:&eClick Here><suggest command:/whitelist add >&e[Click Here for command]<reset>"
+		if arg 1 is "message":
+			close player's inventory
+			send "&6Open chat and type &f&n/whitelistoptions setmessage <text>"
+			send "<tooltip:&eClick Here><suggest command:/whitelistoptions setmessage >&e[Click Here for command]<reset>"
+		if arg 1 is "actuallyadd":
+			if arg 2 is set:
+				if {whitelist.%arg-2's uuid%} is true:
+					send "&c%arg-2% is already whitelisted!"
+					stop
+				remove arg 2 from {unwhitelist::*}
+				delete {unwhitelist.%arg-2's uuid%}
+				add arg 2 to {whitelist::*}
+				set {whitelist.%arg-2's uuid%} to true
+				make player execute command "whitelistgui recently"
+				if {settings.whitelist.silent} is not set:
+					broadcast "&6%player% &7has added &f%arg-2% &7to the whitelist."
+		if arg 1 is "actuallyadd2":
+			if arg 2 is set:
+				if {whitelist.%arg-2's uuid%} is true:
+					send "&carg-2 is already whitelisted!"
+					stop
+				remove arg 2 from {unwhitelist::*}
+				delete {unwhitelist.%arg-2's uuid%}
+				add arg 2 to {whitelist::*}
+				set {whitelist.%arg-2's uuid%} to true
+				make player execute command "manage %arg-2%"
+				if {settings.whitelist.silent} is not set:
+					broadcast "&6%player% &7has added &f%arg-2% &7to the whitelist."
+		if arg 1 is "remove":
+			if arg 2 is set:
+				add arg 2 to {unwhitelist::*}
+				set {unwhitelist.%arg-2's uuid%} to now
+				remove arg 2 from {whitelist::*}
+				delete {whitelist.%arg-2's uuid%}
+				make player execute command "admin 6"
+				if {settings.whitelist.silent} is not set:
+					broadcast "&6%player% &7has removed &f%arg-2% &7from the whitelist."
+		if arg 1 is "remove2":
+			if arg 2 is set:
+				add arg 2 to {unwhitelist::*}
+				set {unwhitelist.%arg-2's uuid%} to now
+				remove arg 2 from {whitelist::*}
+				delete {whitelist.%arg-2's uuid%}
+				make player execute command "manage %arg-2%"
+				if {settings.whitelist.silent} is not set:
+					broadcast "&6%player% &7has removed &f%arg-2% &7from the whitelist."
+		if arg 1 is "on":
+			set {settings.whitelist.on} to true
+			make player execute command "admin 6"
+			if {settings.whitelist.silent} is not set:
+				broadcast "&6%player% &7has enabled the whitelist."
+		if arg 1 is "off":
+			delete {settings.whitelist.on}
+			make player execute command "admin 6"
+			if {settings.whitelist.silent} is not set:
+				broadcast "&6%player% &7has disabled the whitelist."
+		if arg 1 is "silent":
+			if {settings.whitelist.silent} is not set:
+				set {settings.whitelist.silent} to true
+			else:
+				delete {settings.whitelist.silent}
+			make player execute command "admin 6"
+		if arg 1 is "kick":
+			set {_num} to 0
+			loop all players:
+				if {whitelist.%loop-player's uuid%} is not set:
+					if {settings.whitelist.kickmessage} is set:
+						set {_reason} to "%{settings.whitelist.kickmessage}%"
+					else:
+						set {_reason} to "&cYou're not whitelisted!"
+					kick loop-player due to {_reason}
+					add 1 to {_num}
+					send "&cYou have kicked %loop-player%"
+			if {_num} is 0:
+				send "&aNo one was kicked."
+		if arg 1 is "removerecent":
+			loop {unwhitelist::*}:
+				delete {unwhitelist.%loop-value's uuid%}
+			delete {unwhitelist::*}
+			make player execute command "whitelistgui recently"
+		if arg 1 is "recently":
+			if {settings.whitelist.on} is set:
+				open chest with 6 rows named "&2Whitelist &0| Recently unwhitelisted" to player
+				set {_item} to player head named "&cBack to &4Admin Panel &f| &2Whitelist" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWRmNWMyZjg5M2JkM2Y4OWNhNDA3MDNkZWQzZTQyZGQwZmJkYmE2ZjY3NjhjODc4OWFmZGZmMWZhNzhiZjYifX19""}]}}}"
+			else:
+				open chest with 6 rows named "&8Whitelist &0| Recently unwhitelisted" to player
+				set {_item} to player head named "&cBack to &4Admin Panel &f| &7Whitelist" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWRmNWMyZjg5M2JkM2Y4OWNhNDA3MDNkZWQzZTQyZGQwZmJkYmE2ZjY3NjhjODc4OWFmZGZmMWZhNzhiZjYifX19""}]}}}"
+			wait 2 ticks
+			format slot 45 of player with {_item} to run [make player execute command "admin 6"]
+			set {_item} to player head named "&cClear recent unwhitelists" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmViNTg4YjIxYTZmOThhZDFmZjRlMDg1YzU1MmRjYjA1MGVmYzljYWI0MjdmNDYwNDhmMThmYzgwMzQ3NWY3In19fQ==""}]}}}"
+			format slot 46 of player with {_item} to run [make player execute command "whitelistgui removerecent"]
+			set {_num} to -1
+			loop {unwhitelist::*}:
+				add 1 to {_num}
+				if loop-value is online:
+					set {_item} to skull of ("%loop-value%" parsed as offline player) named "&f%loop-value% &a•"
+					set line 1 of lore of {_item} to "&aCurrently online"
+				else:
+					set {_item} to skull of ("%loop-value%" parsed as offline player) named "&7%loop-value% &c•"
+					set line 1 of lore of {_item} to "&cCurrently offline"
+				set line 3 of lore of {_item} to "&7Unwhitelisted on: &f%{unwhitelist.%loop-value's uuid%}%"
+				set line 5 of lore of {_item} to "&eClick to whitelist"
+				format slot {_num} of player with {_item} to run "sudo %player% /whitelistgui actuallyadd %loop-value%"
+
+command /whitelist [<text>] [<offlineplayer>]:
+	aliases: /wl
+	permission: admin
+	permission message: &7You need to be an &cadmin&7 to execute this command.
+	trigger:
+		if arg 1 is not set:
+			send ""
+			if {settings.whitelist.on} is set:
+				send "&a• &7Whitelist is currently enabled."
+			else:
+				send "&c• &7Whitelist is currently disabled."
+			send "&7Command usage:" 
+			send "&6 /whitelist &f<add/remove/on/off/list> <player>"
+			send "&6 /whitelistoptions &f<setmessage/resetmessage> <text>"
+			send ""
+		if arg 1 is "add":
+			if arg 2 is not set:
+				send "&cYou need to fill in a player."
+			if arg 2 is set:
+				if {whitelist.%arg-2's uuid%} is true:
+					send "&carg-2 is already whitelisted!"
+					stop
+				remove arg 2 from {unwhitelist::*}
+				add arg 2 to {whitelist::*}
+				set {whitelist.%arg-2's uuid%} to true
+				send "&aYou've added &6%arg 2%&a to the whitelist."
+				if {settings.whitelist.silent} is not set:
+					broadcast "&6%player% &7has added &f%arg-2% &7to the whitelist."
+		if arg 1 is "remove":
+			if arg 2 is not set:
+				send "&cYou need to fill in a player."
+			if arg 2 is set:
+				add arg 2 to {unwhitelist::*}
+				remove arg 2 from {whitelist::*}
+				delete {whitelist.%arg-2's uuid%}
+				send "&cYou've removed &7%arg 2%&c from the whitelist."
+				if {settings.whitelist.silent} is not set:
+					broadcast "&6%player% &7has removed &f%arg-2% &7from the whitelist."
+		if arg 1 is "list":
+			send "&aPlayers added to the whitelist:"
+			send "&6%{whitelist::*}%"
+		if arg 1 is "on":
+			set {settings.whitelist.on} to true
+			send "&aThe whitelist is now on."
+			if {settings.whitelist.silent} is not set:
+				broadcast "&6%player% &7has enabled the whitelist."
+		if arg 1 is "off":
+			delete {settings.whitelist.on}
+			send "&cThe whitelist is now off."
+			if {settings.whitelist.silent} is not set:
+				broadcast "&6%player% &7has disabled the whitelist."
+command /whitelistoptions [<text>] [<text>]:
+	permission: admin
+	permission message: &7You need to be an &cadmin&7 to execute this command.
+	trigger:
+		if arg 1 is not set:
+			send "&7Command usage &6/whitelistoptions <setmessage/resetmessage> [text]"
+		if arg 1 is "setmessage":
+			if arg 2 is not set:
+				send "&aThe kick message has been reset." 
+				delete {settings.whitelist.kickmessage}
+			if arg 2 is set:
+				send "&aThe kick message has been changed to:" 
+				send arg 2
+				set {settings.whitelist.kickmessage} to arg 2
+		if arg 1 is "resetmessage":
+			send "&aThe kick message has been reset." 
+			delete {settings.whitelist.kickmessage}
+
+on connect:
+	if {settings.whitelist.on} is set:
+		if {whitelist.%player's uuid%} is not set:
+			if {settings.whitelist.kickmessage} is set:
+				set {_reason} to "%{settings.whitelist.kickmessage}%"
+			else:
+				set {_reason} to "&cYou're not whitelisted!"
+			kick player due to {_reason}
+#player utils
+on join:
+	add 1 to {global.joins}
+	add 1 to {stats.%player's uuid%.joins}
+	set {temp.%player%.jointime} to now
+	if {stats.%player's uuid%.firstjoin} is not set:
+		set {stats.%player's uuid%.firstjoin} to now
+
+on disconnect:
+	set {lastonline.%player's uuid%} to now
+	add 1 to {global.disconnects}
+	add 1 to {stats.%player's uuid%.disconnects}
+	set {_sessiontime} to difference between {temp.%player%.jointime} and now
+	add {_sessiontime} to {stats.%player's uuid%.playtime}
+	set {lasthealth.%player's uuid%} to player's health
+	set {lastlevel.%player's uuid%} to player's level
+	set {lastworld.%player's uuid%} to player's world
+
+on portal:
+	if {nether.access} is set:
+		"%event-teleportcause%" is "nether portal"
+		cancel event
+	if {end.access} is set:
+		"%event-teleportcause%" is "end portal"
+		cancel event
+on block break:
+	add 1 to {global.blocksbroken}
+	add 1 to {stats.%player's uuid%.blocksbroken}
+on block place:
+	add 1 to {global.blocksplaced}
+	add 1 to {stats.%player's uuid%.blocksplaced}
+on bed enter:
+	add 1 to {global.bedenter}
+	add 1 to {stats.%player's uuid%.bedenter}
+on bed leave:
+	add 1 to {global.bedleave}
+	add 1 to {stats.%player's uuid%.bedleave}
+on book edit:
+	add 1 to {global.bookedited}
+	add 1 to {stats.%player's uuid%.bookedited}
+on book sign:
+	add 1 to {global.bookssigned}
+	add 1 to {stats.%player's uuid%.bookssigned}
+on chat:
+	add 1 to {global.chatmessages}
+	add 1 to {stats.%player's uuid%.chatmessages}
+on death:
+	if attacker is a player:
+		add 1 to {stats.%attacker's uuid%.killsE}
+		add 1 to {global.killsE}
+on death of player:
+	add 1 to {global.deathsE}
+	add 1 to {stats.%player's uuid%.deathsE}
+	if attacker is a player:
+		add 1 to {stats.%attacker's uuid%.kills}
+		add 1 to {stats.%player's uuid%.deaths}
+		add 1 to {global.kills}
+		add 1 to {global.deaths}
+	if {hardcore} is true:
+		broadcast "&7%player% &chas died for a long time."
+		set player's gamemode to spectator
+		set {death.%player's uuid%} to true
+#invsee
+command /invsee [<player>]:
+	permission: admin
+	trigger:
+		if arg is not set:
+			send "&cYou need to specify a player!"
+		if arg is set:
+			open the arg's inventory for the player
+command /ecsee [<player>]:
+	permission: admin
+	trigger:
+		if arg 1 is not set:
+			send "&cYou need to specify a player!"
+		if arg 1 is set:
+			open ender chest of arg to player
+#removehardcore
+function unhardcore():
+	if {hardcore} is set:
+		delete {hardcore}
+		loop all offline players:
+			if {death.%loop-offlineplayer's uuid%} is set:
+				delete {death.%loop-offlineplayer's uuid%}
+				set gamemode of loop-offlineplayer to survival
+#coolstats
+command /stats:
+	trigger:
+		send "&e&m----=&r &6&lYour stats &e&m=----"
+		set {_sessiontime} to difference between {temp.%player%.jointime} and now
+		add {_sessiontime} to {_playtime}
+		add {stats.%player's uuid%.playtime} to {_playtime}
+		send "&6 Playtime: &f%{_playtime} ? ""%"
+		send "&6 Session: &f%{_sessiontime} ? ""%"
+		send "&6 Chat Messages: &f%{stats.%player's uuid%.chatmessages} ? 0%"
+		send "&6 Player Kills: &f%{stats.%player's uuid%.kills} ? 0%"
+		send "&6 Player Deaths: &f%{stats.%player's uuid%.deaths} ? 0%"
+		send "&6 Kills: &f%{stats.%player's uuid%.killsE} ? 0%"
+		send "&6 Deaths: &f%{stats.%player's uuid%.deathsE} ? 0%"
+		send "&6 Blocks placed: &f%{stats.%player's uuid%.blocksplaced} ? 0%"
+		send "&6 Blocks broken: &f%{stats.%player's uuid%.blocksbroken} ? 0%"
+		send "&6 Times joined: &f%{stats.%player's uuid%.joins} ? 0%"
+		send "&6 Times left: &f%{stats.%player's uuid%.disconnects} ? 0%"
+		send "            &e&m------"
+command /globalstats:
+	trigger:
+		send "&e&m----=&r &6&lGlobal stats &e&m=----"
+		send "&6 Chat Messages: &f%{global.chatmessages} ? 0%"
+		send "&6 Player Kills: &f%{global.kills} ? 0%"
+		send "&6 Player Deaths: &f%{global.deaths} ? 0%"
+		send "&6 Kills: &f%{global.killsE} ? 0%"
+		send "&6 Deaths: &f%{global.deathsE} ? 0%"
+		send "&6 Blocks placed: &f%{global.blocksplaced} ? 0%"
+		send "&6 Blocks broken: &f%{global.blocksbroken} ? 0%"
+		send "&6 Times joined: &f%{global.joins} ? 0%"
+		send "&6 Times left: &f%{global.disconnects} ? 0%"
+		send "            &e&m------"
+#joke
+command /isonebiggerthantwo:
+	trigger:
+		add 1 to {pity}
+		if {pity} is 90:
+			set {pity} to 0
+			send "yes"
+			stop
+		chance of 0.15%:
+			set {pity} to 0
+			send "yes"
+			stop
+		if 1 is bigger than 2:
+			send "Yes"
+		else:
+			send "No"
