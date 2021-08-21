@@ -7,3 +7,7 @@ Skript
 SkQuery-4.1.5  
 SkBee-1.11.2  
 A permissions plugin. (You need the permission "admin" to access commands)  
+
+# Installation
+If you know how, you can install all the dependencies and put the script in the scripts folder.  
+If you don't you can extract preinstall.zip in your server's folder.
