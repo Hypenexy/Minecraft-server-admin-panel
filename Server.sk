@@ -11,25 +11,25 @@ on disconnect:
 	if {gui.opened.%player%} is set:
 		delete {gui.opened.%player%}
 
-command /admin [<number>]:
+command /admin [<number>] [<number>]:
 	permission: admin
 	aliases: /panel
 	trigger:
 		open chest with 6 rows named "&4Admin Panel" to player
-		if arg is 2:
+		if arg-1 is 2:
 			open chest with 6 rows named "&4Admin Panel &0| %number of all offline players% Players" to player
-		if arg is 5:
+		if arg-1 is 5:
 			open chest with 6 rows named "&4Admin Panel &0| %difficulty of world% " to player
 			if {hardcore} is true:
 				open chest with 6 rows named "&4Admin Panel &0| hardcore " to player
-		if arg is 6:
+		if arg-1 is 6:
 			if {settings.whitelist.on} is set:
 				open chest with 6 rows named "&4Admin Panel &0| &2Whitelist " to player
 			else:
 				open chest with 6 rows named "&4Admin Panel &0| &8Whitelist " to player
 		play sound "ENTITY_ZOMBIE_INFECT" with volume 0.3 and pitch 0.65
 		wait 2 ticks
-		if arg is not set:
+		if arg-1 is not set:
 			set {gui.opened.%player%} to 1
 			set slot 10 of current inventory of player to player head named "&aPlayers" with lore "", "&7 Manage and view all players", "&7 on your server.", "" and "&eClick to open!"
 			set slot 12 of current inventory of player to grass named "&aWorld settings" with lore "", "&7 Change options for the world.", "", "" and "&eClick to open!"
@@ -61,22 +61,38 @@ command /admin [<number>]:
 				set slot 49 of current inventory of player to paper named "&aServer Stats" with lore "", "&6 TPS from last:", "&f  1m - %tps from last minute%", "&f  5m - %tps from last 5m%", "&f  15m - %tps from last 15m% ", "&8  20 is maximum.","","&6 Chunks loaded: &f%{_chunks}%", "", "&6 Online Players: &f%number of all players%", "&6 Offline Players: &f%number of all offline players - number of all players%", "", "&6 Uptime: &f%difference between {starttime} and now%", "&6 Started: &f%{starttime}%", ""
 				wait 10 seconds
 			
-		if arg is set:
-			set {gui.opened.%player%} to arg
+		if arg-1 is set:
+			set {gui.opened.%player%} to arg-1
 			set {_item} to player head named "&cBack to &4Admin Panel" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWRmNWMyZjg5M2JkM2Y4OWNhNDA3MDNkZWQzZTQyZGQwZmJkYmE2ZjY3NjhjODc4OWFmZGZmMWZhNzhiZjYifX19""}]}}}"
 			set slot 45 of current inventory of player to {_item}
 
-		if arg is 2:
+		if arg-1 is 2:
 			set {_num} to -1
 			set {_onlinenumber} to number of all players
+			set {_maxpages} to round(number of all offline players / 45)
 			format slot {_onlinenumber} of player with red stained glass pane named "&a<Online&7-&cOffline>" to be unstealable
 			loop all offline players:
 				set {_player} to "%loop-offlineplayer%" parsed as an offline player
 				#wait a tick
-				if {_num} is larger than 35:
-					broadcast "&cWarning /list is full! Ask Hypenexy to upgrade."
-					stop
+				#if {_num} is larger than 44:
+				if arg-2 isn't {_maxpages}:
+					set {_item} to player head named "&eNext Page" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjFkMGY4MmEyYTRjZGQ4NWY3OWY0ZDlkOTc5OGY5YzNhNWJjY2JlOWM3ZjJlMjdjNWZjODM2NjUxYThmM2Y0NSJ9fX0===""}]}}}"
+					format slot 53 of player with {_item} to run "sudo %player% /admin 2 %arg-2 + 1%"
+				if arg-2 isn't 1:
+					set {_item} to player head named "&ePrevious Page" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzU0YWFhYjM5NzY0NjQxZmY4NjI3OTMyZDJmZTFhNGNjY2VkOTY1Mzc1MDhkNGFiYzZjZDVmYmJiODc5MTMifX19==""}]}}}"
+					format slot 46 of player with {_item} to run "sudo %player% /admin 2 %arg-2 + -1%"
+				#stop
 				#if "%loop-offlineplayer%" doesn't contain "@":
+
+				if arg-2 is 1:
+					if {_num} is larger than 44:
+						stop #im tired fix plz!
+				if arg-2 is 2:
+					if {_num} is smaller than 44:
+						stop
+					if {_num} is larger than 88:
+						stop
+
 				set {_uuid} to loop-offlineplayer's uuid
 				if loop-offlineplayer is online:
 					add 1 to {_num}
@@ -102,7 +118,7 @@ command /admin [<number>]:
 					delete {_difference}
 					delete {_item}
 
-		if arg is 3:
+		if arg-1 is 3:
 			set slot 10 of current inventory of player to grass named "&2Overworld" with lore "&7%number of players in world "world"% players.", "", "&f %players in world "world" ? ""%", ""
 			set slot 11 of current inventory of player to netherrack named "&cThe Nether" with lore "&7%number of players in world "world_nether"% players.", "", "&f %players in world "world_nether" ? ""%", ""
 			set slot 12 of current inventory of player to end stone named "&3The End" with lore "&7%number of players in world "world_the_end"% players.", "", "&f %players in world "world_the_end" ? ""%", ""
@@ -112,7 +128,7 @@ command /admin [<number>]:
 			set slot 16 of current inventory of player to end portal frame named "&aEnd portals" with lore "", "&7 This options toggles end portals.", "", "&a Enabled &8- Disabled", "", "&eClick to toggle"
 			if {end.access} is set:
 				set slot 16 of current inventory of player to end portal frame named "&aEnd portals" with lore "", "&7 This options toggles end portals.", "", "&8 Enabled -&c Disabled", "", "&eClick to toggle"
-		if arg is 4:
+		if arg-1 is 4:
 			set {_item} to player head named "&6Morning" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjg1MTlkNDUwNWY0Y2VlNGMwOWI2OGRiMzUwYmIxMTNlNzUzZDdhMGVmNjFkN2U0YzQwNDhiZWU4NGExNTdhNSJ9fX0=""}]}}}" with lore "&85:30", "", "&eClick to change the time"
 			set slot 10 of current inventory of player to {_item}
 			set {_item} to player head named "&eNoon" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWMzNzgzMmM0MTM1MjU1NTU1M2Q4NmFhYWUxMzQxOTMzMWUzYWRlOTk3YmNlMGI4MTEzN2Q1MjA0ZTRjZGU3ZSJ9fX0""}]}}}" with lore "&812:00", "", "&eClick to change the time"
@@ -138,7 +154,7 @@ command /admin [<number>]:
 				set slot 49 of current inventory of player to clock named "&a%time%"
 				wait 0.83 seconds
 
-		if arg is 5:
+		if arg-1 is 5:
 			set slot 11 of current inventory of player to leather helmet with nbt "{HideFlags:63}" named "&aEasy" with lore "&eClick to select"
 			set slot 13 of current inventory of player to iron helmet with nbt "{HideFlags:63}" named "&fNormal" with lore "&eClick to select"
 			set slot 15 of current inventory of player to diamond helmet with nbt "{HideFlags:63}" named "&4Hard" with lore "&eClick to select"
@@ -156,7 +172,7 @@ command /admin [<number>]:
 			if {hardcore} is true:
 				set slot 32 of current inventory of player to bedrock of efficiency 3 with nbt "{HideFlags:63}" named "&cHARDCORE" with lore "&6Already selected", "", "&cWhen you disable hardcore", "&call deaths are erased!"
 		
-		if arg is 6:
+		if arg-1 is 6:
 			set {_item} to player head named "&aWhitelist a player" with nbt "{SkullOwner:{Id:""bbf760b3-5f9c-44ae-a84a-06f4314c935e"",Properties:{textures:[{Value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZmMzE0MzFkNjQ1ODdmZjZlZjk4YzA2NzU4MTA2ODFmOGMxM2JmOTZmNTFkOWNiMDdlZDc4NTJiMmZmZDEifX19""}]}}}"
 			format slot 46 of player with {_item} to run [make player execute command "whitelistgui add"]
 			if {settings.whitelist.on} is set:
@@ -188,7 +204,7 @@ command /admin [<number>]:
 				set line 3 of lore of {_item} to "&eClick to unwhitelist"
 				format slot {_num} of player with {_item} to run "sudo %player% /whitelistgui remove %loop-value%"
 
-		if arg is 7:
+		if arg-1 is 7:
 			format slot 10 of player with tripwire hook named "&6Cheats" with lore "", "&7 If you want completely cheat free experience", "&7 you can set a password to lock the cheats.", "", "&a Unlocked","","&eClick for command" to run "sudo %player% /lock help"
 
 on inventory click:
@@ -196,7 +212,7 @@ on inventory click:
 		cancel event
 		if {gui.opened.%player%} is 1:
 			if clicked slot is 10:
-				make player execute command "admin 2"
+				make player execute command "admin 2 1"
 			if clicked slot is 12:
 				make player execute command "admin 3"
 			if clicked slot is 14:
